@@ -1,0 +1,57 @@
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="amqbroker1" dataDirectory="${activemq.data}" >
+
+        <networkConnectors>
+            <networkConnector name="amqbroker1"
+                              uri="static:(tcp://localhost:60002)"
+                              duplex="true"
+                              networkTTL="4"
+                              decreaseNetworkConsumerPriority="false"/>
+        </networkConnectors>
+
+        <persistenceAdapter>
+            <kahaDB directory="${activemq.data}/data1/kahadb" journalMaxFileLength="32mb"/>
+        </persistenceAdapter>
+
+        <destinationPolicy>
+            <policyMap>
+                <policyEntries>
+
+                    <!--<policyEntry queue=">" />-->
+
+                    <policyEntry queue=">" enableAudit="false">
+                        <networkBridgeFilterFactory>
+                            <conditionalNetworkBridgeFilterFactory replayWhenNoConsumers="true"/>
+                        </networkBridgeFilterFactory>
+                    </policyEntry>
+
+                </policyEntries>
+            </policyMap>
+        </destinationPolicy>
+
+        <systemUsage>
+            <systemUsage>
+                <memoryUsage>
+                    <memoryUsage limit="512 mb" />
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="10 gb" name="foo" />
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="1 gb" />
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
+
+        <transportConnectors>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:60001?maximumConnections=100&amp;wireFormat.maxFrameSize=104857600" />
+        </transportConnectors>
+
+    </broker>
+
+</beans>

@@ -1,0 +1,37 @@
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <beans>
+        <bean id="jmsFactory2" class="org.apache.activemq.ActiveMQConnectionFactory" >
+            <property name="brokerURL">
+                <value>failover://(tcp://localhost:60001?wireFormat.tightEncodingEnabled=false)</value>
+            </property>
+        </bean>
+
+        <bean id="pooledJmsFactory1" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="clear">
+            <property name="connectionFactory">
+                <ref bean="jmsFactory2"/>
+            </property>
+        </bean>
+
+        <bean id="javaDest" class="org.apache.activemq.command.ActiveMQQueue"
+              autowire="constructor">
+            <constructor-arg value="STOCKS.JAVA" />
+            <!--<constructor-arg value=">" />-->
+        </bean>
+
+        <bean id="myListener1" class="com.xxx.mq.listener.myListener2" ></bean>
+
+        <bean id="javaConsumer1" class="org.springframework.jms.listener.DefaultMessageListenerContainer" lazy-init="false">
+            <property name="connectionFactory" ref="jmsFactory2"/>
+            <property name="destination" ref="javaDest"/>
+            <property name="messageListener" ref="myListener1"/>
+            <property name="sessionAcknowledgeMode" value="4"/>
+        </bean>
+
+    </beans>
+
+</beans>

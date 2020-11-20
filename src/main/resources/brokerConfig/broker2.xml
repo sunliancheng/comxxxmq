@@ -1,0 +1,66 @@
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="amqbroker2" dataDirectory="${activemq.data}">
+
+        <!--<plugins>-->
+            <!--<bean xmlns="http://www.springframework.org/schema/beans" id="ipAuthenticationPlugin" class="com.xxx.mq.myPlugins.IPAuthenticationPlugin">-->
+                <!--<property name="allowedIPAddresses">-->
+                    <!--<list>-->
+                        <!--<value>127.0.0.1</value>-->
+                    <!--</list>-->
+                <!--</property>-->
+            <!--</bean>-->
+        <!--</plugins>-->
+
+        <!-- 按照network persistence 和 transport的顺序来排列 -->
+        <!--<networkConnectors>-->
+            <!--<networkConnector name="amqbroker2"-->
+                              <!--uri="static:(tcp://localhost:60001)"-->
+                              <!--duplex="true" prefetchSize="1" />-->
+        <!--</networkConnectors>-->
+
+        <persistenceAdapter>
+            <kahaDB directory="${activemq.data}/data2/kahadb" journalMaxFileLength="32mb"/>
+        </persistenceAdapter>
+
+        <destinationPolicy>
+            <policyMap>
+                <policyEntries>
+
+                    <!--<policyEntry queue=">" />-->
+
+                    <policyEntry queue=">" enableAudit="false">
+                        <networkBridgeFilterFactory>
+                            <conditionalNetworkBridgeFilterFactory replayWhenNoConsumers="true"/>
+                        </networkBridgeFilterFactory>
+                    </policyEntry>
+
+                </policyEntries>
+            </policyMap>
+        </destinationPolicy>
+
+        <systemUsage>
+            <systemUsage>
+                <memoryUsage>
+                    <memoryUsage limit="512 mb" />
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="10 gb" name="foo" />
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="1 gb" />
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
+
+        <transportConnectors>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:60002?maximumConnections=100&amp;wireFormat.maxFrameSize=104857600"/>
+        </transportConnectors>
+
+    </broker>
+
+</beans>
